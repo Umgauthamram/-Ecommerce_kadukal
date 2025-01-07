@@ -1,5 +1,6 @@
 # -Ecommerce_kadukal
-Project Topic: Ecommerce kadukal
+Welcome to the Ecommerce kadukal Project: Milestone 1!
+
 ## Features
 
 - **User Authentication**: Secure registration and login with password encryption.
