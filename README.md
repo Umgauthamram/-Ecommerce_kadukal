@@ -104,23 +104,26 @@ project-root
 └── README.md
 ```
 
-## Contributing
+Milestone 2: Project Setup and Login Page
+Overview
+This milestone focuses on setting up the project structure, configuring the frontend and backend, and implementing a functional login page. It’s part of the e-commerce application development process.
 
-1. Fork the repository.
-2. Create a new branch for your feature or bug fix:
-   ```bash
-   git checkout -b feature-name
-   ```
-3. Commit your changes:
-   ```bash
-   git commit -m "Description of changes"
-   ```
-4. Push the branch:
-   ```bash
-   git push origin feature-name
-   ```
-5. Open a pull request.
+Folder Structure
+The project is organized into two main folders:
 
-## Contact
+frontend/: Contains the React application for the user interface.
+backend/: Contains the Node.js server to handle API requests.
+Key Features Implemented
+Frontend:
+Set up a React app for building the user interface.
+Created the login page, which includes the following features:
+A form for users to input their credentials.
+Basic validation (e.g., checking for empty fields).
+Styled using Tailwind CSS for a responsive layout.
+Backend:
+created new folder called backend
+Tailwind CSS:
+Configured Tailwind CSS for streamlined, utility-first styling.
+
 
 For any queries or contributions, please contact Gautham Ram U M (gauthamram.um@gmail.com).
