@@ -2,13 +2,13 @@ import React from 'react';
 import background from '../assets/amafor.jpg';
 
 
-const Login = () => {
+const Signup = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-cover bg-center" style={{ backgroundImage: `url(${background})` }}>
       <div className="w-[420px] bg-transparent border border-solid border-[rgba(255,255,255,0.3)] p-8 rounded-3xl shadow-lg backdrop-blur-lg">
         <h1 className="text-center text-white text-5xl font-bold mb-7.5">KADUKAL</h1>
         <h1 className="text-center text-white text-4xl font-bold mb-">Welcome Back</h1>
-        <h1 className="text-center text-white text-2xl font-bold mb-8">LogIn</h1>
+        <h1 className="text-center text-white text-2xl font-bold mb-8">Signup</h1>
         
 
         <form className="space-y-6">
@@ -54,4 +54,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Signup;
