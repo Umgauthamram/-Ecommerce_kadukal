@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # -Ecommerce_kadukal
 Welcome to the Ecommerce kadukal Project: Milestone 1!
 
@@ -127,3 +128,6 @@ Configured Tailwind CSS for streamlined, utility-first styling.
 
 
 For any queries or contributions, please contact Gautham Ram U M (gauthamram.um@gmail.com).
+=======
+i will delete once i start to code and download the other packges in it 
+>>>>>>> ad87fddab155058917c7afc32187feb62cd19d45
