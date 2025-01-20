@@ -1,9 +1,8 @@
 const ErrorHandler = require("../utils/ErrorHandler.js");
 const UserModel = require("../model/user.model.js");
 const transporter = require("../utils/sendmail.js");
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 require("dotenv").config({
   path: "../config/env",

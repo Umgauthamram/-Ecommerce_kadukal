@@ -138,7 +138,7 @@ const Signup = () => {
 
                     onClick={() => {
                       setAvatar(null)
-                    }}><IoIosRemoveCircle size={26} className="text-red-600 hover:text-red-800" /></button>
+                    }}><IoIosRemoveCircle size={26} className="text-red-600 hover:text-red-800  " /></button>
 
                 ) : ""}
 
