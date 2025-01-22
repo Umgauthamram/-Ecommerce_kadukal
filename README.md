@@ -127,3 +127,15 @@ Configured Tailwind CSS for streamlined, utility-first styling.
 
 
 For any queries or contributions, please contact Gautham Ram U M (gauthamram.um@gmail.com).
+
+
+
+Milestone 6 
+
+Encrypt the Password:
+
+Use bcrypt to hash the user's password during signup.
+Save the hashed password in the database instead of plain text.
+
+Store Complete User Data:
+Save all the user's data (e.g., name, email, etc.) in the database while ensuring that the password remains encrypted.
