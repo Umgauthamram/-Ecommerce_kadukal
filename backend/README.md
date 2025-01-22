@@ -131,3 +131,6 @@ For any queries or contributions, please contact Gautham Ram U M (gauthamram.um@
 =======
 i will delete once i start to code and download the other packges in it 
 >>>>>>> ad87fddab155058917c7afc32187feb62cd19d45
+
+
+i have add everything node mailer and sendmail.js file .
