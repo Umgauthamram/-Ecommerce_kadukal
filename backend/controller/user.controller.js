@@ -38,6 +38,14 @@ async function CreateUSer(req, res) {
   };
 
   const token = generateToken(data);
+  await transporter.sendMail({
+    to: 'gr@gmail.com',
+    from: 'rg@gmail.com',
+    subject: 'verification email from follow along project',
+    text: 'Text',
+    html: `<h1>Hello world   http://localhost:5173/activation/${token} </h1>`,
+  });
+  console.log("mail sent");
 
   await newUser.save();
   return res.send("User Created Successfully");
@@ -82,6 +90,17 @@ const signup = async (req, res) => {
     if (checkUserPresentinDB) {
       return res.status(403).send({ message: "User already present" });
     }
+    console.log(req.file, process.env.cloud_name);
+    const ImageAddress = await cloudinary.uploader
+      .upload(req.file.path, {
+        folder: 'uploads',
+      })
+      .then((result) => {
+        fs.unlinkSync(req.file.path);
+        return result.url;
+      });
+
+    console.log('url', ImageAddress);
 
     bcrypt.hash(password, 10, async function (err, hashedPassword) {
       try {
