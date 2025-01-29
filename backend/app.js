@@ -1,17 +1,27 @@
-const express = require('express')
-const userRouter=require('./routes/user.routes.js');
-const productRouter = require('./routes/product.routes.js')
-
-require("dotenv").config();
-
+const express = require("express");
 const app = express();
-app.use(express.json())
+const ErrorHandler = require("./middleware/error");
+const cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
+const cors = require("cors");
 
-app.get("/",(req,res)=>{
-    return res.send("Welcome to the backend")
-})
+app.use(express.json());
+app.use(cookieParser());
+app.use(cors());
+app.use("/", express.static("uploads"));
+app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
+// config
+if (process.env.NODE_ENV !== "PRODUCTION") {
+  require("dotenv").config({
+    path: "backend/config/.env",
+  });
+};
+//import Routes
+const user = require("./controller/user");
 
-app.use("/user",userRouter)
-app.use('/product',productRouter)
+app.use("/api/v2/user", user);
+
+// it's for ErrorHandling
+app.use(ErrorHandler);
 
 module.exports = app;

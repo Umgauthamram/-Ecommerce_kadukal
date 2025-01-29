@@ -1,24 +1,30 @@
-const nodemailer = require('nodemailer')
-const transporter = nodemailer.createTransport({
-    secure : true,
-    host: 'smtp.gmail.com',
-    port:465,
-    auth:{
-        user:'gautham.ram.s70@kalvium.community',
-        pass:'qqsh hrnk tahk sjre',
+const nodemailer = require('nodemailer');
+
+const sendMail = async (options) => {
+    try {
+        const transporter = nodemailer.createTransport({
+            host: process.env.SMTP_HOST,
+            port: process.env.SMTP_PORT,
+            secure: false,
+            service: process.env.SMTP_SERVICE,
+            auth: {
+                user: process.env.SMTP_EMAIL,
+                pass: process.env.SMTP_PASSWORD
+            }
+        });
+
+        let mailOptions = {
+            from: process.env.SMTP_EMAIL,
+            to: options.email,
+            subject: options.subject,
+            text: options.message,
+        };
+
+        await transporter.sendMail(mailOptions);
+        console.log('Email sent');
+    } catch (error) {
+        console.error('Error sending email: ', error);
     }
-})
+};
 
-function sendMail(to,sub,msg){
-    transporter.sendMail({
-        to:to,
-        subject:sub,
-        html:msg
-        
-    })
-    console.log("mail sent");
-
-}
-
-sendMail("gautham.ram.s70@kalvium.community","This is my subject","This is my mail working");
-module.exports = transporter;
+module.exports = sendMail;
