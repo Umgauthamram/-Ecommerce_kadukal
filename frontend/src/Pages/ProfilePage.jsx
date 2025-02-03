@@ -1,11 +1,11 @@
 import React from "react";
-import AddressCard from "../Components/Profile/AddressCard.jsx"; // Import AddressCard
+import AddressCard from "../Components/Profile/AddressCard.jsx"; 
 
 const ProfilePage = () => {
   return (
     <div>
-      <h1 className="text-2xl font-bold">Profile Page</h1>
-      <AddressCard /> {/* Include AddressCard component */}
+      <h1 className="text-2xl font-bold text-center mb-6 text-gray-700">Profile Page</h1>
+      <AddressCard /> 
     </div>
   );
 };
