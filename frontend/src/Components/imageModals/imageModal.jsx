@@ -1,6 +1,9 @@
+/* eslint-disable react/prop-types */
 import { ArrowLeft, ArrowRight, X } from "lucide-react";
 
-function imageModal({
+// import React from 'react'
+
+function ImageModal({
   product,
   selectedImage,
   setSelectedImage,
@@ -56,4 +59,4 @@ function imageModal({
   );
 }
 
-export default imageModal;
+export default ImageModal;

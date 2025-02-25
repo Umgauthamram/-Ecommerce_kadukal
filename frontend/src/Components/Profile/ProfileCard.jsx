@@ -1,53 +1,66 @@
+/* eslint-disable react/prop-types */
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
-const Card = ({ children, className = "" }) => {
+const Card = ({ children, className = "" }) => (
   <div className={`bg-white rounded-lg shadow-lg p-6 ${className}`}>
     {children}
-  </div>;
-};
+  </div>
+);
 
-const IconWrapper = ({ children }) => {
-  <div className="bg-gray-100 p-2 rounded-full">{children}</div>;
-};
+const IconWrapper = ({ children }) => (
+  <div className="bg-gray-100 p-2 rounded-full">{children}</div>
+);
 
-const InfoSection = ({ icon, label, value }) => {
-  <div>
+const InfoSection = ({ icon, label, value }) => (
+  <div className="flex items-center gap-3">
     <IconWrapper>{icon}</IconWrapper>
     <div>
       <p className="text-sm text-gray-500">{label}</p>
       <p className="text-gray-900">{value}</p>
     </div>
-  </div>;
-};
+  </div>
+);
 
 export function ProfileCard() {
-  const [userData, setUserData] = useState([]);
-
+  const [userData, setUserData] = useState({});
   useEffect(() => {
     const getUserData = async () => {
       const token = localStorage.getItem("token");
-
       if (!token) {
-        return alert("Token?");
+        return alert("Token missing login");
       }
-
       const response = await axios.get(
-        `http://localhost:8080/user/user-data?token=${token}`
+        `http://localhost:8000/user/user-data?token=${token}`
       );
 
       setUserData(response.data.data);
     };
-
     getUserData();
-  }),
-    [];
+  }, []);
+
+  const handleDeleteAddy = async (id) => {
+    const token = localStorage.getItem("token");
+    try {
+      if (!token) {
+        return alert("Token missing");
+      }
+      const response = await axios.delete(
+        `http://localhost:8000/user/delete-address/${id}?token=${token}`
+      );
+      getUserData();
+    } catch (er) {
+      console.log(er.response.message);
+    }
+  };
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <Card className="max-w-2xl mx-auto">
         {/* Header Section */}
+
         <div className="flex items-center gap-4 mb-8">
           <div className="bg-blue-100 p-4 rounded-full">
+
             <img
               src={userData?.avatar?.url}
               alt=""
@@ -79,6 +92,7 @@ export function ProfileCard() {
             label="User ID"
             value={<span className="font-mono text-sm">{userData._id}</span>}
           />
+
           <InfoSection
             icon={
               <svg
@@ -95,6 +109,7 @@ export function ProfileCard() {
             label="Email"
             value={userData.email}
           />
+
           <InfoSection
             icon={
               <svg
@@ -111,6 +126,7 @@ export function ProfileCard() {
             label="Role"
             value={<span className="capitalize">{userData.role}</span>}
           />
+
           <InfoSection
             icon={
               <svg
@@ -128,9 +144,19 @@ export function ProfileCard() {
             value={
               userData?.address?.length > 0 ? (
                 <ul className="list-disc list-inside">
-                  {/* {userData.address.map((addr, index) => (
-                      <li key={index}>{addr}</li>
-                    ))} */}
+                  {userData.address.map((SingleAddy, index) => (
+                    <>
+                      <button onClick={() => handleDeleteAddy(SingleAddy._id)}>
+                        Delete 👇🏻
+                      </button>
+                      <li key={index}>City: {SingleAddy.city}</li>
+                      <li key={index}>Country: {SingleAddy.country}</li>
+                      <li key={index}>Address 1: {SingleAddy.add1}</li>
+                      <li key={index}>Address 2: {SingleAddy.add2}</li>
+                      <li key={index}>Pin Code: {SingleAddy.zipCode}</li>
+                      <br />
+                    </>
+                  ))}
                 </ul>
               ) : (
                 <span className="text-gray-400 italic">

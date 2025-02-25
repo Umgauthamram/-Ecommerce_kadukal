@@ -1,7 +1,6 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-
+import axios from "axios";
 function UpdateForm() {
   const { id } = useParams();
   const [formData, setFormData] = useState({
@@ -16,12 +15,12 @@ function UpdateForm() {
   const [errorInput, setInputError] = useState("");
   const [images, setImages] = useState(null);
 
-  const handelImageUpload = (e) => {
-    const imageArray = Array.from(e.target.files);
-    setImages(imageArray);
+  const handleImageUpload = (e) => {
+    const imagesArray = Array.from(e.target.files);
+    setImages(imagesArray);
   };
 
-  const HandelChange = (e) => {
+  const handleChange = (e) => {
     setInputError("");
     const { name, value } = e.target;
     setFormData({
@@ -30,7 +29,7 @@ function UpdateForm() {
     });
   };
 
-  const HandelSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     const {
       title,
@@ -41,7 +40,6 @@ function UpdateForm() {
       quantity,
       category,
     } = formData;
-
     if (
       title.length <= 0 ||
       description.length <= 0 ||
@@ -50,176 +48,204 @@ function UpdateForm() {
       quantity <= 0 ||
       category.length <= 0
     ) {
-      return setInputError("Enter the correct values");
+      return setInputError("Please fill all the fields correctly.");
     }
 
     let formDataBody = new FormData();
     formDataBody.append("title", title);
     formDataBody.append("description", description);
-    formDataBody.append("rating", rating);
+    formDataBody.append("category", category);
     formDataBody.append("discountedPrice", discountedPrice);
     formDataBody.append("originalPrice", originalPrice);
     formDataBody.append("quantity", quantity);
     formDataBody.append("rating", rating);
 
-    images?.map((ele) => {
-      formDataBody.append("filepath", ele);
-    });
-
-    let requestData = await axios
-      .put(`http://localhost:8080/product/update-product/${id}`, formDataBody, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      })
-      .then((res) => {
-        return res;
-      })
-      .catch((err) => {
-        return err;
+    if (images) {
+      images?.map((ele) => {
+        formDataBody.append("files", ele);
       });
-
-    for (let pair of formData.entries()) {
-      if (pair[i] instanceof File) {
-        console.log(
-          `${pair[0]}:File - ${pair[i].name}, ${pair[i].type}, ${pair[i].size} bytes`
-        );
-      } else {
-        console.log(`${pair[o]}:${pair[i]}`);
-      }
+    } else {
+      formDataBody.append("images", formData.images);
     }
-  };
 
+    axios
+      .put(
+        `http://localhost:8080/product/update-products/${id}`,
+        formDataBody,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      )
+      .then((response) => {
+        console.log("Product updated successfully:", response);
+      })
+      .catch((error) => {
+        console.log("Error updating product:", error);
+      });
+  };
   useEffect(() => {
     const getDataForId = async () => {
       const singleData = await axios.get(
         `http://localhost:8080/product/get-single/${id}`
       );
       setFormData(singleData.data.data);
-      setImages(singleData.data.images);
+      setImages(singleData.data.data.images);
     };
     getDataForId();
   }, [id]);
-
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-50 py-8">
-      <form onSubmit={HandelSubmit} className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg space-y-4">
-        <h2 className="text-2xl font-semibold text-center">Update Product</h2>
+    <div className="flex justify-center items-center min-h-screen bg-gray-50">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-lg p-6 bg-white shadow-lg rounded-lg"
+      >
+        <h2 className="text-2xl font-semibold text-center mb-6">
+          Add New Product
+        </h2>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700" htmlFor="">
+        <div className="mb-4">
+          <label
+            htmlFor="title"
+            className="block text-lg font-medium text-gray-700"
+          >
             Enter Title
           </label>
           <input
             type="text"
-            onChange={HandelChange}
-            value={formData.title}
             name="title"
-            placeholder="Enter product title"
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            value={formData.title}
+            onChange={handleChange}
+            placeholder="Enter Product title"
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700" htmlFor="">
+        <div className="mb-4">
+          <label
+            htmlFor="description"
+            className="block text-lg font-medium text-gray-700"
+          >
             Enter Description
           </label>
-          <textarea
+          <input
+            type="text"
             name="description"
             value={formData.description}
-            onChange={HandelChange}
-            placeholder="Enter product description"
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            onChange={handleChange}
+            placeholder="Enter Description"
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700" htmlFor="">
-            Discount Price
+        <div className="mb-4">
+          <label
+            htmlFor="discountedPrice"
+            className="block text-lg font-medium text-gray-700"
+          >
+            Discounted Price
           </label>
           <input
             type="number"
             name="discountedPrice"
             value={formData.discountedPrice}
-            onChange={HandelChange}
-            placeholder="Discounted price"
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            onChange={handleChange}
+            placeholder="Discounted Price"
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700" htmlFor="">
+        <div className="mb-4">
+          <label
+            htmlFor="originalPrice"
+            className="block text-lg font-medium text-gray-700"
+          >
             Original Price
           </label>
           <input
             type="number"
             name="originalPrice"
             value={formData.originalPrice}
-            onChange={HandelChange}
-            placeholder="Original price"
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            onChange={handleChange}
+            placeholder="Original Price"
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700" htmlFor="">
+        <div className="mb-4">
+          <label
+            htmlFor="quantity"
+            className="block text-lg font-medium text-gray-700"
+          >
             Stock Quantity
           </label>
           <input
             type="number"
             name="quantity"
             value={formData.quantity}
-            onChange={HandelChange}
-            placeholder="Enter Stock quantity"
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            onChange={handleChange}
+            placeholder="Enter the Stock Quantity"
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700" htmlFor="">
-            Product Image
+        <div className="mb-4">
+          <label
+            htmlFor="images"
+            className="block text-lg font-medium text-gray-700"
+          >
+            Upload Product Images
           </label>
           <input
             type="file"
             multiple
-            onChange={handelImageUpload}
-            className="mt-1 block w-full text-sm text-gray-500 file:py-2 file:px-4 file:border file:border-gray-300 file:rounded-md file:text-sm file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+            onChange={handleImageUpload}
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700" htmlFor="">
+        <div className="mb-4">
+          <label
+            htmlFor="category"
+            className="block text-lg font-medium text-gray-700"
+          >
             Enter Category
           </label>
           <input
             type="text"
-            onChange={HandelChange}
             name="category"
             value={formData.category}
+            onChange={handleChange}
             placeholder="Enter Category"
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700" htmlFor="">
-            Enter Rating of product
+        <div className="mb-4">
+          <label
+            htmlFor="rating"
+            className="block text-lg font-medium text-gray-700"
+          >
+            Enter Rating of Product
           </label>
           <input
             type="number"
             name="rating"
             value={formData.rating}
-            onChange={HandelChange}
-            placeholder="Enter Rating of product"
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            onChange={handleChange}
+            placeholder="Rating of the Product"
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
-        {errorInput && <p className="text-red-500 text-sm">{errorInput}</p>}
+        {errorInput && (
+          <p className="text-red-500 text-center mb-4">{errorInput}</p>
+        )}
 
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded-md shadow-md hover:bg-blue-700 focus:ring-4 focus:ring-blue-300"
+          className="w-full py-3 bg-teal-600 text-white font-semibold rounded-md hover:bg-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-600"
         >
           Submit
         </button>

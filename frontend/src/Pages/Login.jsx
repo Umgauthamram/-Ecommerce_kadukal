@@ -1,7 +1,6 @@
-import LoginForm from "../Components/auth/Login.jsx";
+import LoginPage from '../Components/auth/Login';
 
-function Login() {
-  return <LoginForm />;
+ function Login() {
+  return <LoginPage />;
 }
-
 export default Login;

@@ -1,13 +1,16 @@
-import { Route, Routes } from "react-router-dom";
-import Navbar from "./Components/Navbar/Navbar.jsx";
-import CartPage from "./Pages/CartPage.jsx";
-import HomePage from "./Pages/HomePage.jsx";
-import Login from "./Pages/Login.jsx";
-import ProductEntryPage from "./Pages/ProductEntryPage.jsx";
-import ProfilePage from "./Pages/ProfilePage.jsx";
-import Signup from "./Pages/Signup.jsx";
-import SinglePageProduct from "./Pages/SingleProductPage.jsx";
-import UpdateForm from "./Pages/updateForm.jsx";
+import { Routes, Route } from "react-router-dom";
+import HomePage from "./Pages/HomePage";
+import Signup from "./Pages/Signup";
+import Login from "./Pages/Login";
+import ProductEntryPage from "./Pages/ProductEntryPage";
+import UpdateForm from "./Pages/updateForm";
+import Navbar from "./components/navbar/Navbar";
+import SinglePageProduct from "./Pages/SingleProductPage";
+import CartPage from "./Pages/CartPage";
+import ProfilePage from "./Pages/ProfilePage";
+import AddressCard from "./Components/Profile/AddressCard";
+import SelectAddressPage from "./Pages/selectAddressCard";
+import OrderConfirmation from "./Pages/OrderConformtionPage";
 
 function App() {
   return (
@@ -17,11 +20,14 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/productentry" element={<ProductEntryPage />} />
-        <Route path="/update" element={<UpdateForm />} />
-        <Route path="/productdetails" element={<SinglePageProduct />} />
+        <Route path="/productentrypage" element={<ProductEntryPage />} />
+        <Route path="/updateform/:id" element={<UpdateForm />} />
+        <Route path="/productdetails/:id" element={<SinglePageProduct />} />
         <Route path="/cart" element={<CartPage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/addaddress" element={<AddressCard />} />
+        <Route path="/selectaddress" element={<SelectAddressPage />} />
+        <Route path="/orderconfirmation" element={<OrderConfirmation />} />
       </Routes>
     </>
   );

@@ -1,4 +1,4 @@
-import SignupForm from "../Components/auth/signup.jsx";
+import SignupForm from '../Components/auth/signup';
 
 function Signup() {
   return <SignupForm />;

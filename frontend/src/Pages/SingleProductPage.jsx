@@ -1,32 +1,19 @@
-import axios from "axios";
-import { HeartIcon, ShoppingBagIcon, Star } from "lucide-react";
 import { useEffect, useState } from "react";
+import axios from "axios";
 import { useParams } from "react-router-dom";
+import { Heart, ShoppingBag, Star } from "lucide-react";
 import ImageModal from "../Components/imageModals/imageModal";
-
 function SinglePageProduct() {
   const { id } = useParams();
   const [product, setProduct] = useState({});
   const [showImageModal, setShowImageModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
 
-  useEffect(() => {
-    const getProductSingleDetail = async () => {
-      const response = await axios.get(
-        `http://localhost:8080/product/get-single/${id}`
-      );
-
-      setProduct(response.data.data);
-    };
-
-    getProductSingleDetail();
-  }, [id]);
-
+  useEffect(() => {}, [id]);
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Image Gallery */}
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-2">
               {product?.images?.map((image, idx) => (
@@ -48,8 +35,6 @@ function SinglePageProduct() {
               ))}
             </div>
           </div>
-
-          {/* Product Details */}
           <div className="space-y-6">
             <div>
               <h1 className="text-2xl font-bold">{product.brand}</h1>
@@ -77,27 +62,19 @@ function SinglePageProduct() {
               </div>
               <p className="text-green-600 text-sm">inclusive of all taxes</p>
             </div>
-
-            {/* Size Selection */}
-
-            {/* Action Buttons */}
             <div className="flex gap-4">
               <button className="flex-1 bg-pink-500 text-white py-4 rounded font-semibold flex items-center justify-center gap-2">
-                <ShoppingBagIcon className="w-5 h-5" />
+                <ShoppingBag className="w-5 h-5" />
                 ADD TO CART
               </button>
               <button className="flex-1 border border-gray-300 py-4 rounded font-semibold flex items-center justify-center gap-2">
-                <HeartIcon className="w-5 h-5" />
+                <Heart className="w-5 h-5" />
                 WISHLIST
               </button>
             </div>
-
-            {/* Delivery Options */}
           </div>
         </div>
       </div>
-
-      {/* Image Modal */}
       {showImageModal && (
         <ImageModal
           product={product}
