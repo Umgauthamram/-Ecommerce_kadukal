@@ -519,3 +519,48 @@
 - Implemented the address page using react and tailwind
 - Implemented the logic to fetch user addresses from the user schema
 - Implemented the logic to add new address in the user schema
+
+## Milestone 22
+    1. Create route and display address:
+    Created a route (/add-address) for users to add a new address.
+    After filling in address details, users are redirected back to the profile page.
+    Display the added address on the profile page.
+    Added an option for users to delete addresses from their profile.
+## Milestone 23
+    1. Added a "Place Order" button in the cart to navigate to the "Select Address" page.
+    2. Created a "Select Address" page to display and select delivery addresses.
+    3. Built a backend endpoint to fetch user addresses.
+    4. Defined a Mongoose schema to store order details.
+    5. Implemented functionality to save orders with a "Pending" status.
+## Milestone 24
+    1. Displayed All Ordered Products:
+    Implemented functionality to display all the products that the user is ordering.
+    Ensured that each product is shown with its details in the order summary.
+    2. Displayed Selected Delivery Address:
+    Displayed the address that the user selected for delivery during checkout.
+    3. Displayed Total Value of the Cart:
+    Calculated and displayed the total price of products in the cart.
+    Updated the total dynamically based on the items in the cart.
+    4. Added Confirm Order Button:
+    Included a Confirm Order button at the bottom of the summary page.
+## Milestone 25
+     1. Create an Order Endpoint:
+     Design an endpoint to receive product, user, and address details.
+     Validate the request and ensure proper format for all input fields.
+     2. JWT Authentication:
+     Verify the user’s token using JWT to authenticate the request.
+     If the token is invalid or missing, return an appropriate error message.
+     3. Handle Multiple Products:
+     Ensure that each product in the order has unique details but share the same address.
+     4. Create Order Schema:
+     created Schema for Order
+     Include relevant information such as product details, user, and shipping address in the order schema.
+## Milestone 26
+    1. GET /user-orders-data
+    Fetches all orders associated with the authenticated user.
+    Middleware: verifyUser (JWT token verification).
+    Returns a list of orders if the user is authenticated and exists.
+    2. GetUserOrders
+    Fetches all orders associated with the authenticated user.
+    Verifies if the user exists and if the provided userId is valid.
+    If valid, fetches orders from the database and returns them to the client.
