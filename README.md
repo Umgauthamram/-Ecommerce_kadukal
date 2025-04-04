@@ -564,3 +564,61 @@
     Fetches all orders associated with the authenticated user.
     Verifies if the user exists and if the provided userId is valid.
     If valid, fetches orders from the database and returns them to the client.
+
+## Milestone 27: My Orders Page
+Welcome to Milestone 27!
+
+In this milestone, we focused on creating the frontend page that displays all user orders.
+
+## Milestone 28: Cancel Order Feature
+In this milestone, we focused on adding a cancel order feature to the my-orders page and creating a backend endpoint for handling order cancellations.
+
+Welcome to Milestone 28!
+In this milestone, we focused on adding a cancel order feature to the my-orders page and creating a backend endpoint for handling order cancellations.
+
+## Milestone 29📝
+Created a PayPal Developer Account and logged into the PayPal Developer Dashboard.
+
+Located the Client ID in the sandbox accounts and saved it in the project.
+
+Updated the Order Confirmation Page to include two payment options:
+
+Cash on Delivery (COD)
+
+Online Payment
+
+Implemented radio buttons to toggle between COD and Online Payment.
+
+Set up logic so that PayPal buttons only appear when the Online Payment option is selected.
+
+## Milestone 30📝
+Implemented online payment using PayPal API using the client key you created earlier.
+
+Downloaded NPM package called react-paypal-js that will provide an component called PayPalScriptProvider which will display online payment methods like credit or debit card etc.
+
+## Milestone 31: Redux for Global State Management
+In this milestone, I implemented Redux for global state management. I set up a Redux store to manage application-wide states efficiently.
+
+Store Setup – Configured Redux store using @reduxjs/toolkit.
+
+Slices & Reducers – Created slices to manage state updates.
+
+Provider Integration – Wrapped the app with Provider to enable global access.
+
+Dispatch & Select – Used useDispatch and useSelector for state manipulation.
+
+This implementation improves state consistency and makes data flow more manageable across components.
+
+## Milestone 32 🎯
+Implemented Redux for global state management, enabling seamless state access across all pages.
+
+## Milestone 33📝
+Downloaded jsonwebtoken package using NPM
+Used sign method to create an JWT token with mail and ID
+Gave maxAge to set expire time
+Added the cookie inside the response that helps you to store the cookie inside browser.
+
+## Milestone 34📝
+Got the token from the browser cookie and send it to the server
+In backend wrote an middleware function to validate that JWT token
+In every page made sure that user cannot go to that page with out login

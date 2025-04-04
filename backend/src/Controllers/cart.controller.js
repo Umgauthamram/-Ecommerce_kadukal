@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const CartModel = require("../Model/cart.model.js");
-const UserModel = require("../Model/user.model.jsx");
+const UserModel = require("../Model/user.model.js");
 
 async function AddToCartController() {
   const { productId, quantity } = req.body;

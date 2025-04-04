@@ -1,289 +1,152 @@
-const UserModel = require("../Model/user.model.js");
-const ErrorHandler = require("../utilities/errorhandler.js");
-const transporter = require("../utilities/Sendmail.js");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
-const cloudinary = require("../utilities/cloudinary.js");
+const express = require("express");
+const path = require("path");
 const fs = require("fs");
-const { default: mongoose } = require("mongoose");
+const User = require("../model/user.model");
+const router = express.Router();
+const { upload } = require("../multer");
+const ErrorHandler = require("../utilities/ErrorHandler");
+const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+require("dotenv").config();
+const { isAuthenticatedUser } = require('../middlewares/auth');
 
-require("dotenv").config({
-  path: "../Config/.env",
-});
-
-async function CreateUSer(req, res) {
-  const { Name, email, password } = req.body;
-
-  const CheckUserPresent = await UserModel.findOne({
-    email: email,
-  });
-
-  if (CheckUserPresent) {
-    const error = new ErrorHandler("Already Present in DB", 400);
-
-    return res.status(404).send({
-      message: error.message,
-      status: error.statusCode,
-      success: false,
-    });
-  }
-
-  const newUser = new UserModel({
-    Name: Name,
-    email: email,
-    password: password,
-  });
-  // send mail
-  // 1. Link (http://localhost:5173/activation/{token})
-  // 2. send the above link as mail
-  // 3. direct the user to activation page
-  const data = {
-    Name,
-    email,
-    password,
-  };
-  const token = generateToken(data);
-  await transporter.sendMail({
-    to: "jupitersorbeet@gmail.com",
-    from: "tejasphthomas29@gmail.com",
-    subject: "verification email from follow along project",
-    text: "Text",
-    html: `<h1>Hello world   http://localhost:5173/activation/${token} </h1>`,
-  });
-
-  await newUser.save();
-
-  return res.send("User Created Successfully");
-}
-
-// 1. Check if there is any user already present with same creds
-// 2. if yes/true send respinse as user already exists
-// 3. if no /false cerate a user in database
-
-const generateToken = (data) => {
-  // jwt
-  const token = jwt.sign(
-    { name: data.name, email: data.email, id: data.id },
-    process.env.SECRET_KEY
-  );
-  return token;
-};
-const verifyUser = (token) => {
-  const verify = jwt.verify(token, process.env.SECRET_KEY);
-  if (verify) {
-    return verify;
-  } else {
-    return false;
-  }
-};
-
-async function verifyUserController(req, res) {
-  const { token } = req.params;
-  try {
-    if (verifyUser(token)) {
-      return res
-        .status(200)
-        .cookie("token", token)
-        .json({ token, success: true });
-    }
-    return res.status(403).send({ message: "token expired" });
-  } catch (er) {
-    return res.status(403).send({ message: er.message });
-  }
-}
-
-const signup = async (req, res) => {
-  const { name, email, password } = req.body;
-  try {
-    const checkUserPresentinDB = await UserModel.findOne({ email: email });
-    if (checkUserPresentinDB) {
-      return res.status(403).send({ message: "User already present" });
-    }
-    console.log(req.file, process.env.cloud_name);
-    const ImageAddress = await cloudinary.uploader
-      .upload(req.file.path, {
-        folder: "uploads",
-      })
-      .then((result) => {
-        fs.unlinkSync(req.file.path);
-        return result.url;
+router.post(
+    "/create-user",
+    upload.single("file"), 
+    catchAsyncErrors(async (req, res, next) => {
+      console.log("Creating user...");
+      const { name, email, password } = req.body;
+  
+      const userEmail = await User.findOne({ email });
+      if (userEmail) {
+        if (req.file) {
+          const filepath = path.join(__dirname, "../uploads", req.file.filename);
+          try {
+            fs.unlinkSync(filepath); 
+          } catch (err) {
+            console.log("Error removing file:", err);
+            return res.status(500).json({ message: "Error removing file" });
+          }
+        }
+        return next(new ErrorHandler("User already exists", 400));
+      }
+  
+      let fileUrl = "";
+      if (req.file) {
+        fileUrl = path.join("uploads", req.file.filename);
+      }
+  
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const user = await User.create({
+        name,
+        email,
+        password: hashedPassword,
+        avatar: {
+          public_id: req.file?.filename || "",
+          url: fileUrl,
+        },
       });
+  
+      res.status(201).json({ success: true, user});
+    })
+  );
 
-    console.log("url", ImageAddress);
+  router.post("/login", catchAsyncErrors(async (req, res, next) => {
+    console.log("Logging in user...");
+    const { email, password } = req.body;
+    if (!email || !password) {
+        return next(new ErrorHandler("Please provide email and password", 400));
+    }
+    const user = await User.findOne({ email }).select("+password");
+    if (!user) {
+        return next(new ErrorHandler("Invalid Email or Password", 401));
+    }
+    const isPasswordMatched = await bcrypt.compare(password, user.password);
+    console.log(isPasswordMatched)
+    if (!isPasswordMatched) {
+        return next(new ErrorHandler("Invalid Email or Password", 401));
+    }
+ 
+    const token = jwt.sign(
+      { id: user._id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+  );
 
-    bcrypt.hash(password, 10, async function (err, hashedPassword) {
-      try {
-        if (err) {
-          return res.status(403).send({ message: err.message });
-        }
-        await UserModel.create({
-          Name: name,
-          email,
-          password: hashedPassword,
-          avatar: {
-            url: ImageAddress,
-            public_id: `${email}_public_id`,
-          },
-        });
 
-        return res.status(201).send({ message: "User created successfully.." });
-      } catch (er) {
-        return res.status(500).send({ message: er.message });
-      }
+  res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", 
+      sameSite: "Strict",
+      maxAge: 3600000,
+  });
+
+  user.password = undefined;
+    res.status(200).json({
+        success: true,
+        user,
     });
+}));
 
-    //
-  } catch (er) {
-    return res.status(500).send({ message: er.message });
+router.get("/profile", isAuthenticatedUser, catchAsyncErrors(async (req, res, next) => {
+  const { email } = req.query;
+  if (!email) {
+      return next(new ErrorHandler("Please provide an email", 400));
   }
-};
-const login = async (req, res) => {
-  const { email, password } = req.body;
-  try {
-    const checkUserPresentinDB = await UserModel.findOne({ email: email });
-
-    bcrypt.compare(
-      password,
-      checkUserPresentinDB.password,
-      function (err, result) {
-        // result == true
-        if (err) {
-          return res.status(403).send({ message: er.message, success: false });
-        }
-        let data = {
-          id: checkUserPresentinDB._id,
-          email,
-          password: checkUserPresentinDB.password,
-        };
-        const token = generateToken(data);
-
-        return res.status(200).cookie("token", token).send({
-          message: "User logged in successfully..",
-          success: true,
-          token,
-        });
-      }
-    );
-
-    // return saying signup first
-  } catch (er) {
-    return res.status(403).send({ message: er.message, success: false });
+  const user = await User.findOne({ email });
+  if (!user) {
+      return next(new ErrorHandler("User not found", 404));
   }
-};
+  res.status(200).json({
+      success: true,
+      user: {
+          name: user.name,
+          email: user.email,
+          phoneNumber: user.phoneNumber,
+          avatarUrl: user.avatar.url
+      },
+      addresses: user.addresses,
+  });
+}));
 
-const getUSerData = async (req, res) => {
-  const userId = req.UserId;
-  try {
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(401).send({ message: "Send Valid User Id" });
-    }
+router.post("/add-address", isAuthenticatedUser, catchAsyncErrors(async (req, res, next) => {
+  const { country, city, address1, address2, zipCode, addressType, email } = req.body;
 
-    const checkUserPresentinDB = await UserModel.findOne({ _id: userId });
-    if (!checkUserPresentinDB) {
-      return res
-        .status(401)
-        .send({ message: "Please Signup, user not present" });
-    }
-
-    return res.status(200).send({ data: checkUserPresentinDB });
-  } catch (er) {
-    return res.status(500).send({ message: er.message });
+  const user = await User.findOne({ email });
+  if (!user) {
+      return next(new ErrorHandler("User not found", 404));
   }
-};
-
-const AddAddressController = async (req, res) => {
-  const userId = req.UserId;
-  console.log(req.UserId);
-  const { city, country, add1, add2, zipCode, addressType } = req.body;
-  try {
-    const userFindOne = await UserModel.findOne({ _id: userId });
-    if (!userFindOne) {
-      return res
-        .status(404)
-        .send({ message: "User not found", success: false });
-    }
-
-    const userAddress = {
+  const newAddress = {
       country,
       city,
-      add1,
-      add2,
+      address1,
+      address2,
       zipCode,
       addressType,
-    };
-
-    userFindOne.address.push(userAddress);
-    const response = await userFindOne.save();
-
-    return res
-      .status(201)
-      .send({ message: "User Address Added", success: true, response });
-  } catch (er) {
-    return res.status(500).send({ message: er.message });
-  }
-};
-
-const DeleteAddyController = async (req, res) => {
-  const userId = req.UserId;
-  const { id } = req.params;
-  try {
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res
-        .status(401)
-        .send({ message: "Un-Authorised please signup", sucess: false });
-    }
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res
-        .status(404)
-        .send({ message: "Address Id is in-valid", sucess: false });
-    }
-    const checkIfUSerPresent = await UserModel.findOne({ _id: userId });
-    if (!checkIfUSerPresent) {
-      return res
-        .status(401)
-        .send({ message: "Un-Authorised please signup", sucess: false });
-    }
-    const response = await UserModel.findOneAndUpdate(
-      { _id: userId },
-      { $pull: { address: { _id: id } } },
-      { new: true }
-    );
-    return res
-      .status(201)
-      .send({ message: "User Address deleted", success: true, response });
-  } catch (er) {
-    return res.status(500).send({ message: er.message, sucess: false });
-  }
-};
-
-const GetAddressConroller = async (req, res) => {
-  const userId = req.UserId;
-  try {
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(401).send({ message: "Please login, un-Authorised" });
-    }
-    const checkUser = await UserModel.findOne({ _id: userId }, { address: 1 });
-    if (!checkUser) {
-      return res.status(401).send({ message: "Please signup, un-Authorised" });
-    }
-
-    return res.status(200).send({
-      userInfo: checkUser,
-      message: "Success",
+  };
+  user.addresses.push(newAddress);
+  await user.save();
+  res.status(201).json({
       success: true,
-    });
-  } catch (er) {
-    return res.status(500).send({ message: er.message });
-  }
-};
+      addresses: user.addresses,
+  });
+}));
 
-module.exports = {
-  CreateUSer,
-  verifyUserController,
-  signup,
-  login,
-  getUSerData,
-  AddAddressController,
-  DeleteAddyController,
-  GetAddressConroller,
-};
+router.get("/addresses", isAuthenticatedUser, catchAsyncErrors(async (req, res, next) => {
+  const { email } = req.query;
+  if (!email) {
+      return next(new ErrorHandler("Please provide an email", 400));
+  }
+  const user = await User.findOne({ email });
+  if (!user) {
+      return next(new ErrorHandler("User not found", 404));
+  }
+  res.status(200).json({
+      success: true,
+      addresses: user.addresses,
+  });
+}
+));
+
+module.exports = router;

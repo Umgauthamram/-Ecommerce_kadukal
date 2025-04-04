@@ -1,36 +1,30 @@
-import { Routes, Route } from "react-router-dom";
-import HomePage from "./Pages/HomePage";
-import Signup from "./Pages/Signup";
-import Login from "./Pages/Login";
-import ProductEntryPage from "./Pages/ProductEntryPage";
-import UpdateForm from "./Pages/updateForm";
-import Navbar from "./components/navbar/Navbar";
-import SinglePageProduct from "./Pages/SingleProductPage";
-import CartPage from "./Pages/CartPage";
-import ProfilePage from "./Pages/ProfilePage";
-import AddressCard from "./Components/Profile/AddressCard";
-import SelectAddressPage from "./Pages/selectAddressCard";
-import OrderConfirmation from "./Pages/OrderConformtionPage";
+import React from 'react'
+import { BrowserRouter,Routes,Route } from 'react-router-dom';
+import {LoginPage,SignupPage,Home,CreateProduct, MyProducts, Cart, ProductDetails, Profile, CreateAddress, SelectAddress, OrderConfirmation, MyOrdersPage} from "./Routes";
+import "./App.css";
 
-function App() {
+const App = () => {
   return (
-    <>
-      <Navbar />
+    <BrowserRouter>
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/productentrypage" element={<ProductEntryPage />} />
-        <Route path="/updateform/:id" element={<UpdateForm />} />
-        <Route path="/productdetails/:id" element={<SinglePageProduct />} />
-        <Route path="/cart" element={<CartPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/addaddress" element={<AddressCard />} />
-        <Route path="/selectaddress" element={<SelectAddressPage />} />
-        <Route path="/orderconfirmation" element={<OrderConfirmation />} />
+
+        <Route path='/' element={<Home/>}/>
+        <Route path='/login' element={<LoginPage/>}/>
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/create-product" element={<CreateProduct />} />
+        <Route path="/create-product/:id" element={<CreateProduct />} />
+        <Route path="/my-products" element={<MyProducts />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/product/:id" element={<ProductDetails />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path='/create-address' element={<CreateAddress />} />
+        <Route path="/select-address" element={<SelectAddress />} />
+        <Route path="/order-confirmation" element={<OrderConfirmation />} />
+        <Route path="/myorders" element={<MyOrdersPage />} />
+
       </Routes>
-    </>
-  );
+    </BrowserRouter>
+  )
 }
 
-export default App;
+export default App

@@ -1,66 +1,116 @@
-const { default: mongoose } = require("mongoose");
-const OrderModel = require("../Model/order.model");
+const express = require('express');
+const router = express.Router();
+const Order = require('../model/order.model'); 
+const User = require('../model/user.model');  
+const { isAuthenticatedUser } = require('../middlewares/auth');
 
-async function CreateOrder(req, res) {
-  const userId = req.UserId;
-  const { Items, address, totalAmount } = req.body;
-  try {
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res
-        .status(400)
-        .send({ message: "Invalid User Id", success: false });
+router.post('/place-order', isAuthenticatedUser, async (req, res) => {
+    try {
+        const { email, orderItems, shippingAddress } = req.body;
+       
+        if (!email) {   
+            return res.status(400).json({ message: 'Email is required.' });
+        }
+        if (!orderItems || !Array.isArray(orderItems) || orderItems.length === 0) {
+            return res.status(400).json({ message: 'Order items are required.' });
+        }   
+        if (!shippingAddress) {
+            return res.status(400).json({ message: 'Shipping address is required.' });
+        }
+        
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+  
+        const orderPromises = orderItems.map(async (item) => {
+            const totalAmount = item.price * item.quantity;
+            
+            const order = new Order({
+                user: user._id,
+                orderItems: [item], 
+                shippingAddress,
+                totalAmount,    
+            });
+            return order.save();
+        });
+        const orders = await Promise.all(orderPromises);
+        user.cart = [];
+        await user.save();
+        
+        res.status(201).json({ message: 'Orders placed and cart cleared successfully.', orders });
+    } catch (error) {
+        console.error('Error placing orders:', error);
+        res.status(500).json({ message: error.message });
     }
-    const checkUser = await UserModel.findOne({ _id: userId });
-    if (!checkUser) {
-      return res
-        .status(400)
-        .send({ message: "Users not present pls Signup", success: false });
-    }
+});
 
-    if (!Items) {
-      return res
-        .status(400)
-        .send({ message: "Items not present", success: false });
-    }
+router.get('/my-orders', isAuthenticatedUser, async (req, res) => {
+    try {
+        const { email } = req.query;
 
-    const order = await OrderModel.create({
-      user: userId,
-      orderItems: Items,
-      shippingAddress: address,
-      totalAmount: totalAmount,
-    });
-    return res
-      .status(201)
-      .send({ message: "Data Successfully fetched", success: true, order });
-  } catch (er) {
-    return res.status(500).send({ message: er.message, success: false });
-  }
-}
+     
+        if (!email) {
+            return res.status(400).json({ message: 'Email is required.' });
+        }
 
-async function GetUserOrders(req, res) {
-  const userId = req.UserId;
-  try {
-    if (!mongoose.Types.ObjectId.isValid) {
-      return res
-        .status(400)
-        .send({ message: "In valid user id", success: false });
-    }
-    const checkUser = await UserModel.findOne({ _id: userId });
-    if (!checkUser) {
-      return res
-        .status(400)
-        .send({ message: "Please sign up", success: false });
-    }
-    const orders = await OrderModel.find({ user: userId });
-    return res
-      .status(200)
-      .send({ message: "Data Successfully fetched", success: true, orders });
-  } catch (er) {
-    return res.status(500).send({ message: er.message, success: false });
-  }
-}
+       
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
 
-module.exports = {
-  CreateOrder,
-  GetUserOrders,
-};
+  
+        const orders = await Order.find({ user: user._id });
+
+        res.status(200).json({ orders });
+    } catch (error) {
+        console.error('Error fetching orders:', error);
+        res.status(500).json({ message: error.message });
+    }
+});
+
+router.get('/myorders',  isAuthenticatedUser, async (req, res) => {
+    try {
+       
+        const { email } = req.query;
+        if (!email) {
+            return res.status(400).json({ message: 'Email is required.' });
+        }
+
+      
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+       
+        const orders = await Order.find({ user: user._id });
+        res.status(200).json({ orders });
+    } catch (error) {
+        console.error('Error fetching orders:', error);
+        res.status(500).json({ message: error.message });
+    }
+});
+
+router.patch('/cancel-order/:orderId',  isAuthenticatedUser, async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        console.log("fff")
+       
+        const order = await Order.findById(orderId);
+        console.log(order);
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found.' });
+        }
+        order.orderStatus = 'Cancelled';
+        await order.save();
+
+        res.status(200).json({ message: 'Order cancelled successfully.', order });
+    } catch (error) {
+        console.error('Error cancelling order:', error);
+        res.status(500).json({ message: error.message });
+    }
+});
+
+module.exports = router;
